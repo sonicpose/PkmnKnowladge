@@ -4,6 +4,7 @@ from pokemon_class import Pokemon
 
 import pokemon_class
 
+pygame.mixer.init(buffer=256)
 pygame.init()
 
 clock = pygame.time.Clock()
@@ -14,13 +15,24 @@ screen = display
 
 assets = {}
 
-menu = 'main'
+menu = 'splash'
+
+def setMenu(m):
+    global menu
+    menu = m
+    pygame.mixer.music.load('assets/sounds/intro.ogg')
+    pygame.mixer.music.play(0, 12.65)
 
 def asset(path):
     try:
         return assets[path]
     except KeyError:
-        assets[path] = pygame.image.load(path).convert_alpha()
+        if path[path.index('.'):] in ('.png', '.jpg'):
+            assets[path] = pygame.image.load(path).convert_alpha()
+        elif path[path.index('.'):] in ('.ogg', '.wav'):
+            assets[path] = pygame.mixer.Sound(path)
+        else:
+            raise TypeError('Unknown file format: '+path[path.index('.'):])
         return assets[path]
 
 frame = 0
@@ -43,6 +55,9 @@ while 1:
         upd()
         if do_quit: break
         continue
+    
+    if frame == 200:
+        setMenu('main')
     
     if menu == 'main':
         screen.blit(asset('assets/textures/main_bg.jpg'), (0,0))
